@@ -31,13 +31,13 @@ import de.aron_homberg.gpxsync.util.Helper;
 
 public class RemoteApiAdapter {
 
+    static final String BASE_URL = "...";
     static final String TAG = "RemoteApiAdapter";
-    static final String API_KEY = "986fc531-27b3-4ded-ae15-0245983ec234";
-    static final String UPLOAD_URL = "http://journey.aron-homberg.de/sync.php";
-    static final String POS_SEND_URL = "http://journey.aron-homberg.de/syncCurrentPos.php";
-    static final String LOG_SYNC_URL = "http://journey.aron-homberg.de/syncLog.php";
-    static final String GET_LOG_IDS_URL = "http://journey.aron-homberg.de/getLogIds.php";
-
+    static final String API_KEY = "...";
+    static final String UPLOAD_URL = BASE_URL + "/sync.php";
+    static final String POS_SEND_URL = BASE_URL + "/syncCurrentPos.php";
+    static final String LOG_SYNC_URL = BASE_URL + "/syncLog.php";
+    static final String GET_LOG_IDS_URL = BASE_URL + "/getLogIds.php";
 
     protected static boolean precheck(final MainActivity ctx) {
 
