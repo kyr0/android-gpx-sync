@@ -35,7 +35,6 @@
         android:layout_height="wrap_content"
         android:text="SYNC"
         android:id="@+id/syncButton"
-        android:layout_alignTop="@+id/weatherForecastButton"
         android:layout_alignParentStart="true" />
 
     <Button
