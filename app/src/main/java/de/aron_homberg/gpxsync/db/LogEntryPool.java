@@ -16,7 +16,7 @@ public class LogEntryPool extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     // Database Name
     private static final String DATABASE_NAME = "logEntry";
@@ -25,13 +25,9 @@ public class LogEntryPool extends SQLiteOpenHelper {
 
     private static final String KEY_ID = "id";
     private static final String KEY_GPX_TRACK_ID = "gpxTrackId";
-    private static final String KEY_NR = "nr";
     private static final String KEY_MESSAGE = "message";
-    private static final String KEY_MESSAGE_EN = "message_en";
     private static final String KEY_PICTURE = "picture";
-    private static final String KEY_ORIGIN = "origin";
     private static final String KEY_TIME = "time";
-    private static final String KEY_TYPE = "type";
     private static final String KEY_LAT = "lat";
     private static final String KEY_LNG = "lng";
 
@@ -45,15 +41,11 @@ public class LogEntryPool extends SQLiteOpenHelper {
         String CREATE_TRACKS_TABLE = "CREATE TABLE " + TABLE_ENTRIES + "("
                 + KEY_ID + " INTEGER PRIMARY KEY," // 0
                 + KEY_GPX_TRACK_ID + " INTEGER," // 1
-                + KEY_NR + " INTEGER," // 2
-                + KEY_MESSAGE + " TEXT," // 3
-                + KEY_PICTURE + " BLOB," // 4
-                + KEY_ORIGIN + " TEXT," // 5
-                + KEY_TIME + " TEXT," // 6
-                + KEY_TYPE + " TEXT," // 7
-                + KEY_LAT + " DOUBLE," // 8
-                + KEY_LNG + " DOUBLE," // 9
-                + KEY_MESSAGE_EN + " TEXT" // 10
+                + KEY_MESSAGE + " TEXT," // 2
+                + KEY_PICTURE + " BLOB," // 3
+                + KEY_TIME + " TEXT," // 4
+                + KEY_LAT + " DOUBLE," // 5
+                + KEY_LNG + " DOUBLE" // 6
                 + ")";
 
         db.execSQL(CREATE_TRACKS_TABLE);
@@ -75,15 +67,11 @@ public class LogEntryPool extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(KEY_GPX_TRACK_ID, logEntry.getGpxTrackId());
-        values.put(KEY_NR, logEntry.getNr());
         values.put(KEY_MESSAGE, logEntry.getMessage());
         values.put(KEY_PICTURE, logEntry.getPicture());
-        values.put(KEY_ORIGIN, logEntry.getOrigin());
         values.put(KEY_TIME, logEntry.getTime());
-        values.put(KEY_TYPE, logEntry.getType());
         values.put(KEY_LAT, logEntry.getLat());
         values.put(KEY_LNG, logEntry.getLng());
-        values.put(KEY_MESSAGE_EN, logEntry.getMessage_en());
 
         long id = db.insert(TABLE_ENTRIES, null, values);
 
@@ -107,15 +95,11 @@ public class LogEntryPool extends SQLiteOpenHelper {
 
                 logEntry.setId(Long.parseLong(cursor.getString(0)));
                 logEntry.setGpxTrackId(Long.parseLong(cursor.getString(1)));
-                logEntry.setNr(Integer.parseInt(cursor.getString(2)));
-                logEntry.setMessage(cursor.getString(3));
-                logEntry.setPicture(cursor.getBlob(4));
-                logEntry.setOrigin(cursor.getString(5));
-                logEntry.setTime(cursor.getString(6));
-                logEntry.setType(cursor.getString(7));
-                logEntry.setLat(cursor.getDouble(8));
-                logEntry.setLng(cursor.getDouble(9));
-                logEntry.setMessage_en(cursor.getString(10));
+                logEntry.setMessage(cursor.getString(2));
+                logEntry.setPicture(cursor.getBlob(3));
+                logEntry.setTime(cursor.getString(4));
+                logEntry.setLat(cursor.getDouble(5));
+                logEntry.setLng(cursor.getDouble(6));
 
                 logEntriesList.add(logEntry);
 

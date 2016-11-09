@@ -8,7 +8,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -307,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (id == R.id.action_about) {
 
-            toast("(c) 2015 Aron Homberg");
+            toast("(c) 2016 Aron Homberg");
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -3,14 +3,10 @@ package de.aron_homberg.gpxsync.entities;
 public class LogEntry {
 
     protected long id;
-    protected int nr;
     protected long gpxTrackId;
     protected String message;
-    protected String message_en;
     protected byte[] picture;
-    protected String origin;
     protected String time;
-    protected String type;
     protected double lat;
     protected double lng;
 
@@ -20,14 +16,6 @@ public class LogEntry {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public int getNr() {
-        return nr;
-    }
-
-    public void setNr(int nr) {
-        this.nr = nr;
     }
 
     public String getMessage() {
@@ -54,28 +42,12 @@ public class LogEntry {
         this.gpxTrackId = gpxTrackId;
     }
 
-    public String getOrigin() {
-        return origin;
-    }
-
-    public void setOrigin(String origin) {
-        this.origin = origin;
-    }
-
     public String getTime() {
         return time;
     }
 
     public void setTime(String time) {
         this.time = time;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public double getLat() {
@@ -92,13 +64,5 @@ public class LogEntry {
 
     public void setLng(double lng) {
         this.lng = lng;
-    }
-
-    public String getMessage_en() {
-        return message_en;
-    }
-
-    public void setMessage_en(String message_en) {
-        this.message_en = message_en;
     }
 }

@@ -1,12 +1,10 @@
 package de.aron_homberg.gpxsync.service;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 

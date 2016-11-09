@@ -1,19 +1,28 @@
 package de.aron_homberg.gpxsync;
 
+import android.app.Activity;
 import android.app.LauncherActivity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +30,7 @@ import de.aron_homberg.gpxsync.db.GpxTrackPool;
 import de.aron_homberg.gpxsync.db.LogEntryPool;
 import de.aron_homberg.gpxsync.entities.GpxTrack;
 import de.aron_homberg.gpxsync.entities.LogEntry;
+import de.aron_homberg.gpxsync.util.Helper;
 
 
 public class LogsActivity extends AppCompatActivity {
@@ -55,25 +65,58 @@ public class LogsActivity extends AppCompatActivity {
 
         ArrayList<LogEntry> logEntriesList = (ArrayList<LogEntry>) getLogEntryPool().getByGpxTrack(trackId);
         List<String> logEntriesNamesList = new ArrayList<>();
+        List<Drawable> logEntriesImages = new ArrayList<>();
 
         for (LogEntry l : logEntriesList) {
-            logEntriesNamesList.add(l.getId() + ": " + l.getMessage());
+            logEntriesNamesList.add(l.getMessage());
+            logEntriesImages.add(Helper.bitmapDataToDrawable(new ByteArrayInputStream(l.getPicture()), 1024));
         }
 
         String[] logEntriesNamesArray = new String[logEntriesList.size()];
         logEntriesNamesArray = logEntriesNamesList.toArray(logEntriesNamesArray);
 
-        ArrayAdapter<String> logEntriesListAdapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_list_item_1,
-                android.R.id.text1,
-                logEntriesNamesArray
-        );
+        Drawable[] logEntriesImagesArray = new Drawable[logEntriesImages.size()];
+        logEntriesImagesArray = logEntriesImages.toArray(logEntriesImagesArray);
+
+        ArrayAdapter<String> logEntriesListAdapter = new ImageLogList(this, logEntriesNamesArray, logEntriesImagesArray);
 
         ListView logsList = (ListView) findViewById(R.id.logsListView);
         logsList.setAdapter(logEntriesListAdapter);
 
         registerForContextMenu(logsList);
+    }
+
+    class ImageLogList extends ArrayAdapter<String> {
+
+        private final Activity context;
+        private final String[] messages;
+        private final Drawable[] images;
+
+        public ImageLogList(Activity context, String[] messages, Drawable[] images) {
+            super(context, R.layout.activity_log_item, messages);
+            this.context = context;
+            this.messages = messages;
+            this.images = images;
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, View view, @NonNull ViewGroup parent) {
+
+            LayoutInflater inflater = context.getLayoutInflater();
+            View rowView= inflater.inflate(R.layout.activity_log_item, null, true);
+            TextView txtTitle = (TextView) rowView.findViewById(R.id.log_list_item_message);
+            ImageView imageView = (ImageView) rowView.findViewById(R.id.log_list_item_image);
+
+            if (messages[position] != null) {
+                txtTitle.setText(messages[position]);
+            }
+
+            if (images[position] != null) {
+                imageView.setImageDrawable(images[position]);
+            }
+            return rowView;
+        }
     }
 
     protected void handleIntents() {

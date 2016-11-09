@@ -1,10 +1,16 @@
 package de.aron_homberg.gpxsync.util;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -69,5 +75,44 @@ public class Helper {
     public static String getISOTimeNow() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         return dateFormat.format(new Date());
+    }
+
+    public static Drawable bitmapDataToDrawable(InputStream in, int sizeMax){
+
+        try {
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = in.read(buffer)) > -1 ) {
+                baos.write(buffer, 0, len);
+            }
+            baos.flush();
+            baos.close();
+
+            InputStream is1 = new ByteArrayInputStream(baos.toByteArray());
+            InputStream is2 = new ByteArrayInputStream(baos.toByteArray());
+
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(is1,null,o);
+
+            System.out.println("h:" + o.outHeight + " w:" + o.outWidth);
+
+            int scale = 1;
+            if (o.outHeight > sizeMax || o.outWidth > sizeMax) {
+                scale = (int)Math.pow(2, (int) Math.round(Math.log(sizeMax /
+                        (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
+            }
+
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize = scale;
+            o2.inPreferQualityOverSpeed = true;
+
+            return new BitmapDrawable(BitmapFactory.decodeStream(is2, null, o2));
+
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

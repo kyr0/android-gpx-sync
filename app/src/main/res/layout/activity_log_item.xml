@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:stretchColumns="1" android:shrinkColumns="0">
+
+    <TableRow android:layout_width="match_parent">
+
+        <ImageView
+            android:id="@+id/log_list_item_image"
+            android:layout_width="100dp"
+            android:background="#000"
+            android:layout_height="100dp"/>
+
+        <TextView
+            android:id="@+id/log_list_item_message"
+            android:layout_width="match_parent"
+            android:layout_marginStart="15dp"
+            android:layout_height="wrap_content" />
+
+    </TableRow>
+
+</TableLayout>
