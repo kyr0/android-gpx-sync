@@ -31,13 +31,13 @@ import de.aron_homberg.gpxsync.util.Helper;
 
 public class RemoteApiAdapter {
 
-    static final String BASE_URL = "...";
+    static final String BASE_URL = "";
     static final String TAG = "RemoteApiAdapter";
-    static final String API_KEY = "...";
-    static final String UPLOAD_URL = BASE_URL + "/sync.php";
-    static final String POS_SEND_URL = BASE_URL + "/syncCurrentPos.php";
-    static final String LOG_SYNC_URL = BASE_URL + "/syncLog.php";
-    static final String GET_LOG_IDS_URL = BASE_URL + "/getLogIds.php";
+    static final String API_KEY = "";
+    static final String UPLOAD_URL = BASE_URL + "/journey/track/upload";
+    static final String POS_SEND_URL = BASE_URL + "/journey/position/update";
+    static final String LOG_SYNC_URL = BASE_URL + "/journey/log/create";
+    static final String GET_LOG_IDS_URL = BASE_URL + "/journey/log/list";
 
     protected static boolean precheck(final MainActivity ctx) {
 

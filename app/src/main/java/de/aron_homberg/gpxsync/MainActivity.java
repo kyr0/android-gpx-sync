@@ -41,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS
+        Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
+        Manifest.permission.READ_EXTERNAL_STORAGE
     };
 
     private static final int PERMISSION_REQUEST_CODE = 1;
