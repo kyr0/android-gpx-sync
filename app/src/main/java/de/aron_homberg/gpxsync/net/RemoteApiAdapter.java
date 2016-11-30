@@ -90,7 +90,9 @@ public class RemoteApiAdapter {
 
                 // sync track
                 AsyncHttpClient preClient = new SyncHttpClient();
-                preClient.get(GET_LOG_IDS_URL, new RequestParams(), new AsyncHttpResponseHandler() {
+                RequestParams params = new RequestParams();
+                params.put("apiKey", API_KEY);
+                preClient.get(GET_LOG_IDS_URL, params, new AsyncHttpResponseHandler() {
 
                     @Override
                     public void onStart() {
@@ -104,11 +106,11 @@ public class RemoteApiAdapter {
                             try {
                                 String json = new String(response, "UTF-8");
 
-                                JSONArray syncedIds = new JSONArray(json);
+                                final JSONArray syncedIds = new JSONArray(json);
 
                                 ctx.runOnUiThread(new Runnable() {
                                     public void run() {
-                                        ctx.toast("Detected synced log entries!");
+                                        ctx.toast("Fetched log ids: " + syncedIds.length());
                                     }
                                 });
 
@@ -124,52 +126,67 @@ public class RemoteApiAdapter {
 
                                 for (final GpxTrack t : trackList) {
 
+                                    boolean uploadTrack = true;
+                                    if (isAlreadySynced(syncedIds, t.getHash())) {
+
+                                        ctx.runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                ctx.toast("Track already synced: " + t.getName());
+                                            }
+                                        });
+                                        uploadTrack = false;
+                                    }
+
                                     // sync track
                                     AsyncHttpClient client = new SyncHttpClient();
-                                    RequestParams params = new RequestParams();
-                                    params.put("apiKey", API_KEY);
-                                    params.put("track", t.getHash());
 
-                                    InputStream gpxStream = new ByteArrayInputStream(t.getMarkup().getBytes(StandardCharsets.UTF_8));
-                                    params.put("uploaded_file", gpxStream, t.getHash() + ".xml");
+                                    if (uploadTrack) {
 
-                                    client.post(UPLOAD_URL, params, new AsyncHttpResponseHandler() {
+                                        RequestParams params = new RequestParams();
+                                        params.put("apiKey", API_KEY);
+                                        params.put("track", t.getHash());
 
-                                        @Override
-                                        public void onStart() {
-                                            // called before request is started
-                                        }
+                                        InputStream gpxStream = new ByteArrayInputStream(t.getMarkup().getBytes(StandardCharsets.UTF_8));
+                                        params.put("uploaded_file", gpxStream, t.getHash() + ".xml");
 
-                                        @Override
-                                        public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+                                        client.post(UPLOAD_URL, params, new AsyncHttpResponseHandler() {
 
-                                            //ctx.getDbh().deleteGpxTrack(t);
+                                            @Override
+                                            public void onStart() {
+                                                // called before request is started
+                                            }
 
-                                            ctx.runOnUiThread(new Runnable() {
-                                                public void run() {
-                                                    ctx.toast("Upload OK: " + t.getName());
-                                                    ctx.populateGPXGrid();
-                                                }
-                                            });
-                                        }
+                                            @Override
+                                            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
 
-                                        @Override
-                                        public void onFailure(final int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                                                //ctx.getDbh().deleteGpxTrack(t);
 
-                                            ctx.runOnUiThread(new Runnable() {
-                                                public void run() {
+                                                ctx.runOnUiThread(new Runnable() {
+                                                    public void run() {
+                                                        ctx.toast("Upload OK: " + t.getName());
+                                                        ctx.populateGPXGrid();
+                                                    }
+                                                });
+                                            }
 
-                                                    ctx.toast("Upload FAILED: " + t.getName() + "; HTTP status: " + statusCode);
-                                                    ctx.populateGPXGrid();
-                                                }
-                                            });
-                                        }
+                                            @Override
+                                            public void onFailure(final int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
 
-                                        @Override
-                                        public void onRetry(int retryNo) {
-                                            // called when request is retried
-                                        }
-                                    });
+                                                ctx.runOnUiThread(new Runnable() {
+                                                    public void run() {
+
+                                                        ctx.toast("Upload FAILED: " + t.getName() + "; HTTP status: " + statusCode);
+                                                        ctx.populateGPXGrid();
+                                                    }
+                                                });
+                                            }
+
+                                            @Override
+                                            public void onRetry(int retryNo) {
+                                                // called when request is retried
+                                            }
+                                        });
+                                    }
 
                                     // sync log entries for track
                                     ArrayList<LogEntry> logEntries = (ArrayList<LogEntry>) logEntryPool.getByGpxTrack(t.getId());
