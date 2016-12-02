@@ -124,32 +124,37 @@ public class AddLogEntryActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-            // fetch data from UI
-            EditText messageEditor = (EditText) findViewById(R.id.messageEditor);
-            String message = messageEditor.getText().toString();
+                if (snapshotImageBlob != null) {
 
-            // create new entry
-            LogEntry entry = new LogEntry();
-            entry.setGpxTrackId(trackId);
-            entry.setMessage(message);
-            entry.setTime(Helper.getISOTimeNow());
-            entry.setLat(recentLocation.getLatitude());
-            entry.setLng(recentLocation.getLongitude());
 
-            if (snapshotImageBlob != null) {
-                entry.setPicture(snapshotImageBlob);
-            }
+                    // fetch data from UI
+                    EditText messageEditor = (EditText) findViewById(R.id.messageEditor);
+                    String message = messageEditor.getText().toString();
 
-            // save in DB
-            long entryId = new LogEntryPool(AddLogEntryActivity.this).add(entry);
+                    // create new entry
+                    LogEntry entry = new LogEntry();
+                    entry.setGpxTrackId(trackId);
+                    entry.setMessage(message);
+                    entry.setTime(Helper.getISOTimeNow());
+                    entry.setLat(recentLocation.getLatitude());
+                    entry.setLng(recentLocation.getLongitude());
+                    entry.setPicture(snapshotImageBlob);
 
-            // back to LogsActivity
-            Intent intent = new Intent(AddLogEntryActivity.this, LogsActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.putExtra("BACK", true);
-            intent.putExtra("trackId", trackId);
-            intent.putExtra("entryId", entryId);
-            startActivity(intent);
+                    // save in DB
+                    long entryId = new LogEntryPool(AddLogEntryActivity.this).add(entry);
+
+                    // back to LogsActivity
+                    Intent intent = new Intent(AddLogEntryActivity.this, LogsActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("BACK", true);
+                    intent.putExtra("trackId", trackId);
+                    intent.putExtra("entryId", entryId);
+                    startActivity(intent);
+
+                } else {
+
+                    Toast.makeText(AddLogEntryActivity.this, "No Image? Cancelling!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

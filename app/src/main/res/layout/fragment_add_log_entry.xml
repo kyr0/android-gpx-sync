@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:text="SAVE"
         android:id="@+id/saveButton"
-        android:enabled="false"
+        android:enabled="true"
         android:layout_alignParentBottom="true"
         android:layout_alignEnd="@+id/rotateImageButton"
         android:layout_alignParentStart="true" />
@@ -23,9 +23,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="MESSAGE"
         android:id="@+id/textView4"
-        android:layout_below="@+id/nrEditor"
-        android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/messageEditorEn" />
+        android:layout_alignParentStart="true" />
 
     <EditText
         android:layout_width="wrap_content"

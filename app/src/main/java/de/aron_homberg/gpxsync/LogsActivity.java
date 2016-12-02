@@ -64,12 +64,18 @@ public class LogsActivity extends AppCompatActivity {
     public void populateLogsGrid() {
 
         ArrayList<LogEntry> logEntriesList = (ArrayList<LogEntry>) getLogEntryPool().getByGpxTrack(trackId);
+
         List<String> logEntriesNamesList = new ArrayList<>();
+        List<Long> logEntriesIdsList = new ArrayList<>();
         List<Drawable> logEntriesImages = new ArrayList<>();
 
         for (LogEntry l : logEntriesList) {
             logEntriesNamesList.add(l.getMessage());
-            logEntriesImages.add(Helper.bitmapDataToDrawable(new ByteArrayInputStream(l.getPicture()), 1024));
+            logEntriesIdsList.add(l.getId());
+
+            if (l.getPicture() != null) {
+                logEntriesImages.add(Helper.bitmapDataToDrawable(new ByteArrayInputStream(l.getPicture()), 1024));
+            }
         }
 
         String[] logEntriesNamesArray = new String[logEntriesList.size()];
@@ -78,12 +84,16 @@ public class LogsActivity extends AppCompatActivity {
         Drawable[] logEntriesImagesArray = new Drawable[logEntriesImages.size()];
         logEntriesImagesArray = logEntriesImages.toArray(logEntriesImagesArray);
 
-        ArrayAdapter<String> logEntriesListAdapter = new ImageLogList(this, logEntriesNamesArray, logEntriesImagesArray);
+        Long[] logEntriesIdsArray = new Long[logEntriesIdsList.size()];
+        logEntriesIdsArray = logEntriesIdsList.toArray(logEntriesIdsArray);
+
+        ArrayAdapter<String> logEntriesListAdapter = new ImageLogList(this, logEntriesNamesArray, logEntriesImagesArray, logEntriesIdsArray);
 
         ListView logsList = (ListView) findViewById(R.id.logsListView);
         logsList.setAdapter(logEntriesListAdapter);
 
         registerForContextMenu(logsList);
+
     }
 
     class ImageLogList extends ArrayAdapter<String> {
@@ -91,12 +101,14 @@ public class LogsActivity extends AppCompatActivity {
         private final Activity context;
         private final String[] messages;
         private final Drawable[] images;
+        private final Long[] ids;
 
-        public ImageLogList(Activity context, String[] messages, Drawable[] images) {
+        public ImageLogList(Activity context, String[] messages, Drawable[] images, Long[] ids) {
             super(context, R.layout.activity_log_item, messages);
             this.context = context;
             this.messages = messages;
             this.images = images;
+            this.ids = ids;
         }
 
         @NonNull
@@ -109,13 +121,21 @@ public class LogsActivity extends AppCompatActivity {
             ImageView imageView = (ImageView) rowView.findViewById(R.id.log_list_item_image);
 
             if (messages[position] != null) {
-                txtTitle.setText(messages[position]);
+                txtTitle.setText(ids[position] + ": " + messages[position]);
+            } else {
+                txtTitle.setText(ids[position] + ": No message");
             }
 
             if (images[position] != null) {
                 imageView.setImageDrawable(images[position]);
+            } else {
+                imageView.setImageDrawable(null);
             }
             return rowView;
+        }
+
+        public Long getId(int position) {
+            return ids[position];
         }
     }
 
@@ -192,9 +212,10 @@ public class LogsActivity extends AppCompatActivity {
 
         ListView logsList = (ListView) findViewById(R.id.logsListView);
         String logEntryName = (String) logsList.getAdapter().getItem(info.position);
-        long logEntryId = Long.parseLong(logEntryName.split(":")[0]);
 
-        Log.d(TAG, "Tapped: " + menuItemName + " of " + logEntryName);
+        long logEntryId = ((ImageLogList) logsList.getAdapter()).getId(info.position);
+
+        Log.d(TAG, "Tapped: " + menuItemName + " of " + logEntryName + " id " + logEntryId);
 
         if (menuItemName.equals(MENU_ITEM_DELETE)) {
 

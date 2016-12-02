@@ -73,7 +73,7 @@ public class Helper {
     }
 
     public static String getISOTimeNow() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         return dateFormat.format(new Date());
     }
 

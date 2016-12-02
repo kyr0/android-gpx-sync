@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected void doSync() {
 
-        toast("Syncing...");
+        //toast("Syncing...");
 
         RemoteApiAdapter.callSyncTracksApi(
                 (ArrayList<GpxTrack>) getDbh().getUnSyncedTracks(),

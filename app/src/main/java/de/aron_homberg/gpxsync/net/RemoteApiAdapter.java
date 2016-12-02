@@ -82,11 +82,13 @@ public class RemoteApiAdapter {
 
             public void run() {
 
+                /*
                 ctx.runOnUiThread(new Runnable() {
                     public void run() {
-                        ctx.toast("Checking synced...");
+                        //ctx.toast("Checking synced...");
                     }
                 });
+                */
 
                 // sync track
                 AsyncHttpClient preClient = new SyncHttpClient();
@@ -108,11 +110,13 @@ public class RemoteApiAdapter {
 
                                 final JSONArray syncedIds = new JSONArray(json);
 
+                                /*
                                 ctx.runOnUiThread(new Runnable() {
                                     public void run() {
-                                        ctx.toast("Fetched log ids: " + syncedIds.length());
+                                        ctx.toast("Logs already synced: " + syncedIds.length());
                                     }
                                 });
+                                */
 
                                 final LogEntryPool logEntryPool = new LogEntryPool(ctx);
 
@@ -129,11 +133,19 @@ public class RemoteApiAdapter {
                                     boolean uploadTrack = true;
                                     if (isAlreadySynced(syncedIds, t.getHash())) {
 
+                                        /*
                                         ctx.runOnUiThread(new Runnable() {
                                             public void run() {
-                                                ctx.toast("Track already synced: " + t.getName());
+
+                                                String descriptor = t.getHash();
+
+                                                if ( t.getName().length() > 0) {
+                                                    descriptor = t.getName();
+                                                }
+                                                ctx.toast("Track synced yet: " + descriptor);
                                             }
                                         });
+                                        */
                                         uploadTrack = false;
                                     }
 
@@ -163,7 +175,7 @@ public class RemoteApiAdapter {
 
                                                 ctx.runOnUiThread(new Runnable() {
                                                     public void run() {
-                                                        ctx.toast("Upload OK: " + t.getName());
+                                                        ctx.toast("Synced track: " + t.getName());
                                                         ctx.populateGPXGrid();
                                                     }
                                                 });
@@ -175,7 +187,7 @@ public class RemoteApiAdapter {
                                                 ctx.runOnUiThread(new Runnable() {
                                                     public void run() {
 
-                                                        ctx.toast("Upload FAILED: " + t.getName() + "; HTTP status: " + statusCode);
+                                                        ctx.toast("Track sync FAILED: " + t.getName() + "; HTTP status: " + statusCode);
                                                         ctx.populateGPXGrid();
                                                     }
                                                 });
@@ -193,15 +205,17 @@ public class RemoteApiAdapter {
 
                                     for (final LogEntry l : logEntries) {
 
-                                        String logId = Helper.md5(l.getTime());
+                                        final String logId = Helper.md5(l.getTime());
 
                                         if (isAlreadySynced(syncedIds, logId)) {
 
+                                            /*
                                             ctx.runOnUiThread(new Runnable() {
                                                 public void run() {
-                                                    ctx.toast("Log entry already synced: " + l.getMessage());
+                                                    ctx.toast("Log entry already synced: " + logId);
                                                 }
                                             });
+                                            */
                                             continue;
                                         }
 
@@ -236,7 +250,13 @@ public class RemoteApiAdapter {
 
                                                 ctx.runOnUiThread(new Runnable() {
                                                     public void run() {
-                                                        ctx.toast("Log entry upload OK: " + l.getMessage());
+
+                                                        String descriptor = logId;
+
+                                                        if (l.getMessage().length() > 0) {
+                                                            descriptor = l.getMessage();
+                                                        }
+                                                        ctx.toast("Synced log: " + descriptor);
                                                         ctx.populateGPXGrid();
                                                     }
                                                 });
@@ -248,7 +268,7 @@ public class RemoteApiAdapter {
                                                 ctx.runOnUiThread(new Runnable() {
                                                     public void run() {
 
-                                                        ctx.toast("Log entry upload FAILED: " + l.getMessage() + "; HTTP status: " + statusCode);
+                                                        ctx.toast("Log sync FAILED: " + l.getMessage() + "; HTTP status: " + statusCode);
                                                     }
                                                 });
                                             }
@@ -266,6 +286,8 @@ public class RemoteApiAdapter {
 
                                         Button syncButton = (Button) ctx.findViewById(R.id.syncButton);
                                         syncButton.setEnabled(true);
+
+                                        ctx.toast("Sync finished.");
                                     }
                                 });
 

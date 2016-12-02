@@ -153,11 +153,11 @@ public class GpxTrackPool extends SQLiteOpenHelper {
     }
 
     public List<GpxTrack> getUnSyncedTracks() {
-        return get("SELECT * FROM " + TABLE_TRACKS + " WHERE " + KEY_IS_SYNCHRONIZED + "=0");
+        return get("SELECT * FROM " + TABLE_TRACKS);
     }
 
     public List<GpxTrack> getSyncedTracks() {
-        return get("SELECT * FROM " + TABLE_TRACKS + " WHERE " + KEY_IS_SYNCHRONIZED + "=1");
+        return get("SELECT * FROM " + TABLE_TRACKS);
     }
 
     public int updateGpxTrack(GpxTrack track) {
