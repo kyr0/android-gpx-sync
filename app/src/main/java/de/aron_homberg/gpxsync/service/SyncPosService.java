@@ -11,6 +11,7 @@ import android.widget.Toast;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.aron_homberg.gpxsync.App;
 import de.aron_homberg.gpxsync.net.RemoteApiAdapter;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
@@ -66,25 +67,30 @@ public class SyncPosService extends Service {
             @Override
             public void run() {
 
-                Log.d(TAG, "GeoPosLocation!");
+                App app = (App) getApplication();
 
-                final SmartLocation.LocationControl lc = SmartLocation.with(SyncPosService.this).location();
-                final OnLocationUpdatedListener locListener = new OnLocationUpdatedListener() {
+                if (app.isAutoUpdatePosition()) {
 
-                    @Override
-                    public void onLocationUpdated(Location location) {
+                    Log.d(TAG, "GeoPosLocation!");
 
-                    lc.stop();
+                    final SmartLocation.LocationControl lc = SmartLocation.with(SyncPosService.this).location();
+                    final OnLocationUpdatedListener locListener = new OnLocationUpdatedListener() {
 
-                    RemoteApiAdapter.callSyncCurrentPosApi(
-                            location.getLatitude(),
-                            location.getLongitude(),
-                            SyncPosService.this
-                    );
-                    }
-                };
-                lc.start(locListener);
-                lc.config(LocationParams.NAVIGATION);
+                        @Override
+                        public void onLocationUpdated(Location location) {
+
+                            lc.stop();
+
+                            RemoteApiAdapter.callSyncCurrentPosApi(
+                                    location.getLatitude(),
+                                    location.getLongitude(),
+                                    SyncPosService.this
+                            );
+                        }
+                    };
+                    lc.start(locListener);
+                    lc.config(LocationParams.NAVIGATION);
+                }
             }
 
         }, 0, UPDATE_INTERVAL);

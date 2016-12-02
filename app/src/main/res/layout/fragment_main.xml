@@ -45,4 +45,14 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true" />
 
+    <Switch
+        android:text="Auto"
+        android:checked="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@+id/updatePosButton"
+        android:id="@+id/autoUpdatePos"
+        android:layout_alignBottom="@+id/updatePosButton" />
+
 </RelativeLayout>
