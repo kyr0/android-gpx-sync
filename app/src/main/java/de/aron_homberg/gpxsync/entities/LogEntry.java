@@ -7,8 +7,6 @@ public class LogEntry {
     protected String message;
     protected byte[] picture;
     protected String time;
-    protected double lat;
-    protected double lng;
 
     public long getId() {
         return id;
@@ -48,21 +46,5 @@ public class LogEntry {
 
     public void setTime(String time) {
         this.time = time;
-    }
-
-    public double getLat() {
-        return lat;
-    }
-
-    public void setLat(double lat) {
-        this.lat = lat;
-    }
-
-    public double getLng() {
-        return lng;
-    }
-
-    public void setLng(double lng) {
-        this.lng = lng;
     }
 }

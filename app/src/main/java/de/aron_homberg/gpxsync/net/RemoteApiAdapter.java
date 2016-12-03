@@ -233,8 +233,6 @@ public class RemoteApiAdapter {
                                         logParams.put("message", l.getMessage());
                                         logParams.put("time", l.getTime());
                                         logParams.put("track", t.getHash());
-                                        logParams.put("lat", l.getLat());
-                                        logParams.put("lng", l.getLng());
 
                                         client.post(LOG_SYNC_URL, logParams, new AsyncHttpResponseHandler() {
 

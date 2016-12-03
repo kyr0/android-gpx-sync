@@ -66,7 +66,7 @@ public class AddLogEntryActivity extends AppCompatActivity {
         handleRotateImage();
         handleSnapshotChoose();
         handleSaveNewEntry();
-        triggerLocationUpdates();
+        //triggerLocationUpdates();
     }
 
     protected void handleRotateImage() {
@@ -98,6 +98,7 @@ public class AddLogEntryActivity extends AppCompatActivity {
         });
     }
 
+    /*
     protected void triggerLocationUpdates() {
 
         OnLocationUpdatedListener locListener = new OnLocationUpdatedListener() {
@@ -115,6 +116,7 @@ public class AddLogEntryActivity extends AppCompatActivity {
     };
         SmartLocation.with(AddLogEntryActivity.this).location().start(locListener);
     }
+    */
 
     protected void handleSaveNewEntry() {
 
@@ -136,8 +138,6 @@ public class AddLogEntryActivity extends AppCompatActivity {
                     entry.setGpxTrackId(trackId);
                     entry.setMessage(message);
                     entry.setTime(Helper.getISOTimeNow());
-                    entry.setLat(recentLocation.getLatitude());
-                    entry.setLng(recentLocation.getLongitude());
                     entry.setPicture(snapshotImageBlob);
 
                     // save in DB

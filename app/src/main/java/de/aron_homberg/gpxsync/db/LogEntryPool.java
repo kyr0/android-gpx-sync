@@ -43,9 +43,7 @@ public class LogEntryPool extends SQLiteOpenHelper {
                 + KEY_GPX_TRACK_ID + " INTEGER," // 1
                 + KEY_MESSAGE + " TEXT," // 2
                 + KEY_PICTURE + " BLOB," // 3
-                + KEY_TIME + " TEXT," // 4
-                + KEY_LAT + " DOUBLE," // 5
-                + KEY_LNG + " DOUBLE" // 6
+                + KEY_TIME + " TEXT" // 4
                 + ")";
 
         db.execSQL(CREATE_TRACKS_TABLE);
@@ -70,8 +68,6 @@ public class LogEntryPool extends SQLiteOpenHelper {
         values.put(KEY_MESSAGE, logEntry.getMessage());
         values.put(KEY_PICTURE, logEntry.getPicture());
         values.put(KEY_TIME, logEntry.getTime());
-        values.put(KEY_LAT, logEntry.getLat());
-        values.put(KEY_LNG, logEntry.getLng());
 
         long id = db.insert(TABLE_ENTRIES, null, values);
 
@@ -98,8 +94,6 @@ public class LogEntryPool extends SQLiteOpenHelper {
                 logEntry.setMessage(cursor.getString(2));
                 logEntry.setPicture(cursor.getBlob(3));
                 logEntry.setTime(cursor.getString(4));
-                logEntry.setLat(cursor.getDouble(5));
-                logEntry.setLng(cursor.getDouble(6));
 
                 logEntriesList.add(logEntry);
 
