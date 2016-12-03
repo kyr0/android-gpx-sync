@@ -52,7 +52,6 @@ public class RemoteApiAdapter {
         return true;
     }
 
-
     public static void callSyncTracksApi(final ArrayList<GpxTrack> trackList, final MainActivity ctx) {
 
         if (!precheck(ctx)) return;
@@ -291,7 +290,16 @@ public class RemoteApiAdapter {
 
 
                             } catch (UnsupportedEncodingException | JSONException e1) {
-                                e1.printStackTrace();
+
+                                ctx.runOnUiThread(new Runnable() {
+                                    public void run() {
+
+                                    Button syncButton = (Button) ctx.findViewById(R.id.syncButton);
+                                    syncButton.setEnabled(true);
+
+                                    ctx.toast("No active journey?");
+                                    }
+                                });
                             }
                     }
 
@@ -301,7 +309,10 @@ public class RemoteApiAdapter {
                         ctx.runOnUiThread(new Runnable() {
                             public void run() {
 
-                                ctx.toast("Failed sync precheck.");
+                            Button syncButton = (Button) ctx.findViewById(R.id.syncButton);
+                            syncButton.setEnabled(true);
+
+                            ctx.toast("Failed sync precheck.");
                             }
                         });
                     }
@@ -351,7 +362,7 @@ public class RemoteApiAdapter {
                     @Override
                     public void onFailure(final int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
 
-                        ctx.onFailedLocationUpdate("HTTP request failed", statusCode);
+                        ctx.onFailedLocationUpdate("No active journey?", statusCode);
                     }
 
                     @Override
@@ -389,7 +400,7 @@ public class RemoteApiAdapter {
                     }
 
                     @Override
-                    public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+                    public void onSuccess(final int statusCode, Header[] headers, byte[] response) {
 
                         ctx.onSuccessLocationUpdate();
                     }
@@ -397,7 +408,7 @@ public class RemoteApiAdapter {
                     @Override
                     public void onFailure(final int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
 
-                        ctx.onFailedLocationUpdate("HTTP request failed", statusCode);
+                        ctx.onFailedLocationUpdate("No active journey?", statusCode);
                     }
 
                     @Override
