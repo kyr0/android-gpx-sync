@@ -1,13 +1,21 @@
 package de.aron_homberg.gpxsync;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -22,6 +30,8 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +45,7 @@ import de.aron_homberg.gpxsync.util.Helper;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnRequestPermissionsResultCallback {
 
     protected GpxTrackPool dbh;
 
@@ -312,6 +322,8 @@ public class MainActivity extends AppCompatActivity {
         String receivedAction = receivedItent.getAction();
         String receivedMimeType = receivedItent.getType();
 
+        receivedItent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
         // GPX track send via SEND intent
         if (receivedAction.equals(Intent.ACTION_SEND) &&
             receivedMimeType != null) {
@@ -320,10 +332,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    protected String getGpxMarkup(String gpxUri) {
+    protected String getGpxMarkup(Uri gpxUri) {
 
-        String gpxMarkup = "";
-        gpxMarkup = Helper.getFileContents(gpxUri);
+        String gpxMarkup;
+        ParcelFileDescriptor mInputPFD = null;
+
+        try {
+            /*
+             * Get the content resolver instance for this context, and use it
+             * to get a ParcelFileDescriptor for the file.
+             */
+            mInputPFD = getContentResolver().openFileDescriptor(gpxUri, "r");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Shared GPX file not found. Permission denied?");
+        }
+
+        gpxMarkup = Helper.getFileContents(mInputPFD);
+
         return gpxMarkup;
     }
 
@@ -331,14 +357,19 @@ public class MainActivity extends AppCompatActivity {
 
         toast("Storing track...");
 
-        // get OSMAnd+ GPX stream URI
-        String gpxUri = ((Uri) getIntent().getExtras().get("android.intent.extra.STREAM")).getPath();
+        Intent shareGpxIntent = getIntent();
 
-        if (gpxUri != null && !getDbh().hasTrack(gpxUri)) {
+        // get OSMAnd+ GPX stream URI
+        Uri gpxUri = (Uri) shareGpxIntent.getExtras().get("android.intent.extra.STREAM");
+        String gpxUrl = gpxUri.getPath();
+
+        if (gpxUrl != null && !getDbh().hasTrack(gpxUrl)) {
+
+            toast("SHARED: " + gpxUrl);
 
             getDbh().addGpxTrack(
                     new GpxTrack(
-                            gpxUri, // URI
+                            gpxUrl, // URL
                             false, // not synchronized
                             getGpxMarkup(gpxUri)
                     )

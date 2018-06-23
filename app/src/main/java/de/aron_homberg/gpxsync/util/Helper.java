@@ -1,15 +1,21 @@
 package de.aron_homberg.gpxsync.util;
 
+import android.Manifest;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.MessageDigest;
@@ -46,7 +52,7 @@ public class Helper {
         return "";
     }
 
-    public static String getFileContents(String uri) {
+    public static String getFileContents(ParcelFileDescriptor parcelFileDescriptor) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -54,7 +60,7 @@ public class Helper {
 
             String content;
             FileInputStream fis = null;
-            fis = new FileInputStream(new File(uri));
+            fis = new FileInputStream(parcelFileDescriptor.getFileDescriptor());
 
             InputStreamReader isr = new InputStreamReader(fis);
             BufferedReader br = new BufferedReader(isr);

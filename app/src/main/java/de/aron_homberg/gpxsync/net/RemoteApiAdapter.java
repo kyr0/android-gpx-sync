@@ -31,9 +31,9 @@ import de.aron_homberg.gpxsync.util.Helper;
 
 public class RemoteApiAdapter {
 
-    static final String BASE_URL = "";
+    static final String BASE_URL = "http://www.aron-homberg.de";
     static final String TAG = "RemoteApiAdapter";
-    static final String API_KEY = "";
+    static final String API_KEY = "531F7B6E-0DB0-49F6-99A9-95DB7132B123";
     static final String UPLOAD_URL = BASE_URL + "/journey/track/upload";
     static final String POS_SEND_URL = BASE_URL + "/journey/position/update";
     static final String LOG_SYNC_URL = BASE_URL + "/journey/log/create";
@@ -297,7 +297,7 @@ public class RemoteApiAdapter {
                                     Button syncButton = (Button) ctx.findViewById(R.id.syncButton);
                                     syncButton.setEnabled(true);
 
-                                    ctx.toast("No active journey?");
+                                    ctx.toast("No active journey? Wrong API key?");
                                     }
                                 });
                             }
