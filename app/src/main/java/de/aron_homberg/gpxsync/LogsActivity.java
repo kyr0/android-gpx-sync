@@ -1,13 +1,10 @@
 package de.aron_homberg.gpxsync;
 
 import android.app.Activity;
-import android.app.LauncherActivity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -26,9 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.aron_homberg.gpxsync.db.GpxTrackPool;
 import de.aron_homberg.gpxsync.db.LogEntryPool;
-import de.aron_homberg.gpxsync.entities.GpxTrack;
 import de.aron_homberg.gpxsync.entities.LogEntry;
 import de.aron_homberg.gpxsync.util.Helper;
 
@@ -89,7 +84,7 @@ public class LogsActivity extends AppCompatActivity {
 
         ArrayAdapter<String> logEntriesListAdapter = new ImageLogList(this, logEntriesNamesArray, logEntriesImagesArray, logEntriesIdsArray);
 
-        ListView logsList = (ListView) findViewById(R.id.logsListView);
+        ListView logsList = findViewById(R.id.logsListView);
         logsList.setAdapter(logEntriesListAdapter);
 
         registerForContextMenu(logsList);
@@ -117,8 +112,8 @@ public class LogsActivity extends AppCompatActivity {
 
             LayoutInflater inflater = context.getLayoutInflater();
             View rowView= inflater.inflate(R.layout.activity_log_item, null, true);
-            TextView txtTitle = (TextView) rowView.findViewById(R.id.log_list_item_message);
-            ImageView imageView = (ImageView) rowView.findViewById(R.id.log_list_item_image);
+            TextView txtTitle = rowView.findViewById(R.id.log_list_item_message);
+            ImageView imageView = rowView.findViewById(R.id.log_list_item_image);
 
             if (messages[position] != null) {
                 txtTitle.setText(ids[position] + ": " + messages[position]);
@@ -191,7 +186,7 @@ public class LogsActivity extends AppCompatActivity {
 
             Log.d(TAG, "Menu pos clicked: " + info.position);
 
-            ListView logsList = (ListView) findViewById(R.id.logsListView);
+            ListView logsList = findViewById(R.id.logsListView);
             String logEntryName = (String) logsList.getAdapter().getItem(info.position);
 
             menu.setHeaderTitle(logEntryName);
@@ -210,7 +205,7 @@ public class LogsActivity extends AppCompatActivity {
         int menuItemIndex = item.getItemId();
         String menuItemName = contextMenuItems[menuItemIndex];
 
-        ListView logsList = (ListView) findViewById(R.id.logsListView);
+        ListView logsList = findViewById(R.id.logsListView);
         String logEntryName = (String) logsList.getAdapter().getItem(info.position);
 
         long logEntryId = ((ImageLogList) logsList.getAdapter()).getId(info.position);

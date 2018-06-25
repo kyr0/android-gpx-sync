@@ -17,10 +17,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Offline tracks queued for synchronization:"
+            android:text="@string/offline_tracks"
             android:id="@+id/textView"
-            android:layout_below="@+id/syncButton"
-            android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal" />
 
         <ListView
@@ -33,20 +31,20 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SYNC"
+        android:text="@string/sync"
         android:id="@+id/syncButton"
         android:layout_alignParentStart="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="UPDATE POS."
+        android:text="@string/update_pos"
         android:id="@+id/updatePosButton"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true" />
 
     <Switch
-        android:text="Auto"
+        android:text="@string/auto"
         android:checked="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

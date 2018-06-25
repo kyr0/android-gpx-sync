@@ -3,4 +3,9 @@
     <string name="action_about">About</string>
     <string name="title_activity_logs">Log entries</string>
     <string name="title_activity_add_log_entry">Add log entry</string>
+
+    <string name="offline_tracks">Offline tracks queued for synchronization:</string>
+    <string name="sync">SYNC</string>
+    <string name="update_pos">UPDATE POS.</string>
+    <string name="auto">Auto</string>
 </resources>

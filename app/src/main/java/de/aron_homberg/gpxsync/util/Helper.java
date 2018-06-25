@@ -1,33 +1,28 @@
 package de.aron_homberg.gpxsync.util;
 
-import android.Manifest;
-import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
+import android.os.Build;
+import android.os.LocaleList;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
+import android.support.annotation.RequiresApi;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 public class Helper {
 
-    public static final String md5(final String s) {
+    public static String md5(final String s) {
         final String MD5 = "MD5";
         try {
             // Create MD5 Hash
@@ -59,7 +54,7 @@ public class Helper {
         try {
 
             String content;
-            FileInputStream fis = null;
+            FileInputStream fis;
             fis = new FileInputStream(parcelFileDescriptor.getFileDescriptor());
 
             InputStreamReader isr = new InputStreamReader(fis);
@@ -78,19 +73,20 @@ public class Helper {
         return sb.toString();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public static String getISOTimeNow() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", LocaleList.getDefault().get(0));
         return dateFormat.format(new Date());
     }
 
-    public static Drawable bitmapDataToDrawable(InputStream in, int sizeMax){
+    public static Drawable bitmapDataToDrawable(InputStream in, int sizeMax) {
 
         try {
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
             int len;
-            while ((len = in.read(buffer)) > -1 ) {
+            while ((len = in.read(buffer)) > -1) {
                 baos.write(buffer, 0, len);
             }
             baos.flush();
@@ -101,13 +97,13 @@ public class Helper {
 
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(is1,null,o);
+            BitmapFactory.decodeStream(is1, null, o);
 
             System.out.println("h:" + o.outHeight + " w:" + o.outWidth);
 
             int scale = 1;
             if (o.outHeight > sizeMax || o.outWidth > sizeMax) {
-                scale = (int)Math.pow(2, (int) Math.round(Math.log(sizeMax /
+                scale = (int) Math.pow(2, (int) Math.round(Math.log(sizeMax /
                         (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
             }
 
@@ -115,7 +111,7 @@ public class Helper {
             o2.inSampleSize = scale;
             o2.inPreferQualityOverSpeed = true;
 
-            return new BitmapDrawable(BitmapFactory.decodeStream(is2, null, o2));
+            return new BitmapDrawable(Resources.getSystem(),BitmapFactory.decodeStream(is2, null, o2));
 
         } catch (Exception e) {
             return null;

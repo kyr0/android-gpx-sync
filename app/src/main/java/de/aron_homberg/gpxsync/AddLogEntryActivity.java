@@ -6,10 +6,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -18,7 +17,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import org.apache.sanselan.ImageReadException;
@@ -35,13 +33,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.util.Objects;
 
 import de.aron_homberg.gpxsync.db.LogEntryPool;
 import de.aron_homberg.gpxsync.entities.LogEntry;
 import de.aron_homberg.gpxsync.util.Helper;
-import io.nlopez.smartlocation.OnLocationUpdatedListener;
-import io.nlopez.smartlocation.SmartLocation;
 
 
 public class AddLogEntryActivity extends AppCompatActivity {
@@ -51,7 +47,6 @@ public class AddLogEntryActivity extends AppCompatActivity {
     byte[] snapshotImageBlob = null;
     BitmapDrawable snapshot = null;
     protected int trackId;
-    protected Location recentLocation;
     String mCurrentPhotoPath = null;
     JpegImageMetadata jpegMetadata = null;
 
@@ -71,30 +66,27 @@ public class AddLogEntryActivity extends AppCompatActivity {
 
     protected void handleRotateImage() {
 
-        Button rotateBtn = (Button) findViewById(R.id.rotateImageButton);
-        rotateBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        Button rotateBtn = findViewById(R.id.rotateImageButton);
+        rotateBtn.setOnClickListener(v -> {
 
-            Log.d(TAG, "Rotating drawable");
+        Log.d(TAG, "Rotating drawable");
 
-            // rotate by 90° and replace snapshot BitmapDrawable
-            Bitmap image = snapshot.getBitmap();
-            Bitmap mutableImage = image.copy(Bitmap.Config.ARGB_8888, true);
+        // rotate by 90° and replace snapshot BitmapDrawable
+        Bitmap image = snapshot.getBitmap();
+        Bitmap mutableImage = image.copy(Bitmap.Config.ARGB_8888, true);
 
-            Matrix matrix = new Matrix();
-            matrix.setRotate(90, mutableImage.getWidth() / 2, mutableImage.getHeight() / 2);
-            Bitmap rotatedImage = Bitmap.createBitmap(mutableImage, 0, 0, mutableImage.getWidth(), mutableImage.getHeight(), matrix, true);
+        Matrix matrix = new Matrix();
+        matrix.setRotate(90, mutableImage.getWidth() / 2, mutableImage.getHeight() / 2);
+        Bitmap rotatedImage = Bitmap.createBitmap(mutableImage, 0, 0, mutableImage.getWidth(), mutableImage.getHeight(), matrix, true);
 
-            try {
-                exifBitmap(rotatedImage);
-            } catch (IOException | ImageReadException | ImageWriteException e) {
-                e.printStackTrace();
-            }
+        try {
+            exifBitmap(rotatedImage);
+        } catch (IOException | ImageReadException | ImageWriteException e) {
+            e.printStackTrace();
+        }
 
-            // re-render image
-            renderDrawable();
-            }
+        // re-render image
+        renderDrawable();
         });
     }
 
@@ -120,57 +112,53 @@ public class AddLogEntryActivity extends AppCompatActivity {
 
     protected void handleSaveNewEntry() {
 
-        Button saveButton = (Button) findViewById(R.id.saveButton);
+        Button saveButton = findViewById(R.id.saveButton);
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        saveButton.setOnClickListener(v -> {
 
-                if (snapshotImageBlob != null) {
+            if (snapshotImageBlob != null) {
 
 
-                    // fetch data from UI
-                    EditText messageEditor = (EditText) findViewById(R.id.messageEditor);
-                    String message = messageEditor.getText().toString();
+                // fetch data from UI
+                EditText messageEditor = findViewById(R.id.messageEditor);
+                String message = messageEditor.getText().toString();
 
-                    // create new entry
-                    LogEntry entry = new LogEntry();
-                    entry.setGpxTrackId(trackId);
-                    entry.setMessage(message);
+                // create new entry
+                LogEntry entry = new LogEntry();
+                entry.setGpxTrackId(trackId);
+                entry.setMessage(message);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     entry.setTime(Helper.getISOTimeNow());
-                    entry.setPicture(snapshotImageBlob);
-
-                    // save in DB
-                    long entryId = new LogEntryPool(AddLogEntryActivity.this).add(entry);
-
-                    // back to LogsActivity
-                    Intent intent = new Intent(AddLogEntryActivity.this, LogsActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra("BACK", true);
-                    intent.putExtra("trackId", trackId);
-                    intent.putExtra("entryId", entryId);
-                    startActivity(intent);
-
-                } else {
-
-                    Toast.makeText(AddLogEntryActivity.this, "No Image? Cancelling!", Toast.LENGTH_SHORT).show();
                 }
+                entry.setPicture(snapshotImageBlob);
+
+                // save in DB
+                long entryId = new LogEntryPool(AddLogEntryActivity.this).add(entry);
+
+                // back to LogsActivity
+                Intent intent = new Intent(AddLogEntryActivity.this, LogsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("BACK", true);
+                intent.putExtra("trackId", trackId);
+                intent.putExtra("entryId", entryId);
+                startActivity(intent);
+
+            } else {
+
+                Toast.makeText(AddLogEntryActivity.this, "No Image? Cancelling!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     protected void handleSnapshotChoose() {
 
-        Button chooseSnapshotButton = (Button) findViewById(R.id.chooseSnapshotButton);
+        Button chooseSnapshotButton = findViewById(R.id.chooseSnapshotButton);
 
-        chooseSnapshotButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        chooseSnapshotButton.setOnClickListener(v -> {
 
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                startActivityForResult(intent, PICK_SNAPSHOT);
-            }
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            startActivityForResult(intent, PICK_SNAPSHOT);
         });
     }
 
@@ -192,12 +180,12 @@ public class AddLogEntryActivity extends AppCompatActivity {
             try {
 
                 // make byte[] of image data
-                InputStream inputStream = AddLogEntryActivity.this.getContentResolver().openInputStream(data.getData());
+                InputStream inputStream = AddLogEntryActivity.this.getContentResolver().openInputStream(Objects.requireNonNull(data.getData()));
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
                 byte[] buffer = new byte[1024];
                 int len;
-                while ((len = inputStream.read(buffer)) > -1 ) {
+                while ((len = Objects.requireNonNull(inputStream).read(buffer)) > -1 ) {
                     baos.write(buffer, 0, len);
                 }
                 baos.flush();
@@ -223,7 +211,7 @@ public class AddLogEntryActivity extends AppCompatActivity {
                     exifBitmap(snapshotBitmap);
 
                     // enable the rotate button
-                    Button rotateBtn = (Button) findViewById(R.id.rotateImageButton);
+                    Button rotateBtn = findViewById(R.id.rotateImageButton);
                     rotateBtn.setEnabled(true);
                 }
 
@@ -267,7 +255,7 @@ public class AddLogEntryActivity extends AppCompatActivity {
     protected void renderDrawable() {
 
         // show image
-        ImageView previewImageView = (ImageView) findViewById(R.id.previewImageView);
+        ImageView previewImageView = findViewById(R.id.previewImageView);
         previewImageView.setImageDrawable(null);
         previewImageView.setImageDrawable(snapshot);
     }
@@ -284,7 +272,7 @@ public class AddLogEntryActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        //int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
         /*

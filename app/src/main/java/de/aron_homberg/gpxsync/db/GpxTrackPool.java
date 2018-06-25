@@ -62,7 +62,7 @@ public class GpxTrackPool extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(KEY_STORAGE_PATH, gpxTrack.getStoragePath());
-        values.put(KEY_IS_SYNCHRONIZED, (gpxTrack.getIsSynchronized() ? 1 : 0));
+        values.put(KEY_IS_SYNCHRONIZED, (gpxTrack.isSynchronized() ? 1 : 0));
         values.put(KEY_MARKUP, gpxTrack.getMarkup());
 
         db.insert(TABLE_TRACKS, null, values);
@@ -166,7 +166,7 @@ public class GpxTrackPool extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(KEY_STORAGE_PATH, track.getStoragePath());
-        values.put(KEY_IS_SYNCHRONIZED, track.getIsSynchronized() ? 0 : 1);
+        values.put(KEY_IS_SYNCHRONIZED, track.isSynchronized() ? 0 : 1);
         values.put(KEY_MARKUP, track.getMarkup());
 
         // updating row

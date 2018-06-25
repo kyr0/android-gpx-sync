@@ -2,7 +2,6 @@ package de.aron_homberg.gpxsync.service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.location.Location;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -38,22 +37,12 @@ public class SyncPosService extends Service {
         }
 
         final String finalMsg = msg;
-        handler.post(new Runnable() {
-            public void run() {
-
-                Toast.makeText(getApplicationContext(), finalMsg, Toast.LENGTH_LONG).show();
-            }
-        });
+        handler.post(() -> Toast.makeText(getApplicationContext(), finalMsg, Toast.LENGTH_LONG).show());
     }
 
     public void onSuccessLocationUpdate() {
 
-        handler.post(new Runnable() {
-            public void run() {
-
-                Toast.makeText(getApplicationContext(), "Updated GeoPos!", Toast.LENGTH_LONG).show();
-            }
-        });
+        handler.post(() -> Toast.makeText(getApplicationContext(), "Updated GeoPos!", Toast.LENGTH_LONG).show());
     }
 
     @Override
@@ -62,31 +51,25 @@ public class SyncPosService extends Service {
         Log.d(TAG, "onStartCommand");
 
         int UPDATE_INTERVAL = 10 * 60 * 1000; // all 10 minutes
+        App app = (App) getApplication();
+
         timer.scheduleAtFixedRate(new TimerTask() {
 
             @Override
             public void run() {
-
-                App app = (App) getApplication();
 
                 if (app.isAutoUpdatePosition()) {
 
                     Log.d(TAG, "GeoPosLocation!");
 
                     final SmartLocation.LocationControl lc = SmartLocation.with(SyncPosService.this).location();
-                    final OnLocationUpdatedListener locListener = new OnLocationUpdatedListener() {
-
-                        @Override
-                        public void onLocationUpdated(Location location) {
-
-                            lc.stop();
-
-                            RemoteApiAdapter.callSyncCurrentPosApi(
-                                    location.getLatitude(),
-                                    location.getLongitude(),
-                                    SyncPosService.this
-                            );
-                        }
+                    final OnLocationUpdatedListener locListener = location -> {
+                        lc.stop();
+                        RemoteApiAdapter.callSyncCurrentPosApi(
+                                location.getLatitude(),
+                                location.getLongitude(),
+                                SyncPosService.this
+                        );
                     };
                     lc.start(locListener);
                     lc.config(LocationParams.NAVIGATION);

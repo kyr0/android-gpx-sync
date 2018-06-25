@@ -1,21 +1,17 @@
 package de.aron_homberg.gpxsync;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
-import android.support.annotation.RequiresApi;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -25,15 +21,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import de.aron_homberg.gpxsync.db.GpxTrackPool;
 import de.aron_homberg.gpxsync.db.LogEntryPool;
@@ -93,27 +88,22 @@ public class MainActivity extends AppCompatActivity implements OnRequestPermissi
     private void handleAutoUpdatePositionSwitch() {
 
         final App app = (App) getApplication();
-        final Switch autoUpdatePositionSwitch = (Switch) findViewById(R.id.autoUpdatePos);
+        final Switch autoUpdatePositionSwitch = findViewById(R.id.autoUpdatePos);
 
         autoUpdatePositionSwitch.setChecked(app.isAutoUpdatePosition());
 
-        autoUpdatePositionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-
-                app.setAutoUpdatePosition(checked);
-            }
-        });
+        autoUpdatePositionSwitch.setOnCheckedChangeListener((compoundButton, checked) -> app.setAutoUpdatePosition(checked));
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
 
         switch (requestCode) {
 
             case PERMISSION_REQUEST_CODE: {
 
-                if (grantResults.length > 0 && grantResults[0] == this.getPackageManager().PERMISSION_GRANTED) {
+                this.getPackageManager();
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     // Permissions granted.
                     onPermissionsGranted();
@@ -139,27 +129,16 @@ public class MainActivity extends AppCompatActivity implements OnRequestPermissi
         alertDialog.setTitle("Permission is necessary!");
         alertDialog.setMessage("Please restart the app and grant the permissions as requested.");
 
-        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog,int which) {
-                finish();
-            }
-        });
+        alertDialog.setPositiveButton("OK", (dialog, which) -> finish());
     }
 
     protected void triggerLocationUpdates() {
 
-        OnLocationUpdatedListener locListener = new OnLocationUpdatedListener() {
-
-            @Override
-            public void onLocationUpdated(Location location) {
-
-                RemoteApiAdapter.callSyncCurrentPosApi(
-                        location.getLatitude(),
-                        location.getLongitude(),
-                        MainActivity.this
-                );
-            }
-        };
+        OnLocationUpdatedListener locListener = location -> RemoteApiAdapter.callSyncCurrentPosApi(
+                location.getLatitude(),
+                location.getLongitude(),
+                MainActivity.this
+        );
         SmartLocation.with(MainActivity.this).location().start(locListener);
     }
 
@@ -171,63 +150,41 @@ public class MainActivity extends AppCompatActivity implements OnRequestPermissi
 
         final String finalMsg = msg;
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), finalMsg, Toast.LENGTH_LONG).show();
-            }
-        });
+        runOnUiThread(() -> Toast.makeText(getApplicationContext(), finalMsg, Toast.LENGTH_LONG).show());
     }
 
     public void onSuccessLocationUpdate() {
 
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), "Updated GeoPos!", Toast.LENGTH_LONG).show();
-            }
-        });
+        runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Updated GeoPos!", Toast.LENGTH_LONG).show());
     }
 
     protected void handleSyncPosButtonTap() {
 
-        final Button syncPosButton = (Button) findViewById(R.id.updatePosButton);
+        final Button syncPosButton = findViewById(R.id.updatePosButton);
 
-        syncPosButton.setOnClickListener(new View.OnClickListener() {
+        syncPosButton.setOnClickListener(v -> {
 
-            @Override
-            public void onClick(View v) {
+            DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
 
-                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case DialogInterface.BUTTON_POSITIVE:
+                        runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Sync. pos...", Toast.LENGTH_LONG).show());
 
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(getApplicationContext(), "Sync. pos...", Toast.LENGTH_LONG).show();
-                                    }
-                                });
+                        triggerLocationUpdates();
 
-                                triggerLocationUpdates();
+                        break;
 
-                                break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        break;
+                }
+            };
 
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                //No button clicked
-                                break;
-                        }
-                    }
-                };
+            AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+            builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
+                    .setNegativeButton("No", dialogClickListener).show();
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
-                        .setNegativeButton("No", dialogClickListener).show();
-
-            }
         });
     }
 
@@ -242,42 +199,31 @@ public class MainActivity extends AppCompatActivity implements OnRequestPermissi
 
     public void toast(final String msg) {
 
-        runOnUiThread(new Runnable() {
-            public void run() {
-                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-            }
-        });
+        runOnUiThread(() -> Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show());
     }
 
     protected void handleSyncButtonTap() {
 
-        final Button syncButton = (Button) findViewById(R.id.syncButton);
+        final Button syncButton = findViewById(R.id.syncButton);
 
-        syncButton.setOnClickListener(new View.OnClickListener() {
+        syncButton.setOnClickListener(v -> {
 
-            @Override
-            public void onClick(View v) {
+            DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        doSync();
+                        break;
 
-                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case DialogInterface.BUTTON_POSITIVE:
-                                doSync();
-                                break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        break;
+                }
+            };
 
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                //No button clicked
-                                break;
-                        }
-                    }
-                };
+            AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+            builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
+                    .setNegativeButton("No", dialogClickListener).show();
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
-                        .setNegativeButton("No", dialogClickListener).show();
-
-            }
         });
     }
 
@@ -310,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements OnRequestPermissi
                 trackNamesArray
         );
 
-        ListView gpxList = (ListView) findViewById(R.id.gpxListView);
+        ListView gpxList = findViewById(R.id.gpxListView);
         gpxList.setAdapter(gpxListAdapter);
 
         registerForContextMenu(gpxList);
@@ -318,14 +264,14 @@ public class MainActivity extends AppCompatActivity implements OnRequestPermissi
 
     protected void handleIntents() {
 
-        Intent receivedItent = getIntent();
-        String receivedAction = receivedItent.getAction();
-        String receivedMimeType = receivedItent.getType();
+        Intent receivedIntent = getIntent();
+        String receivedAction = receivedIntent.getAction();
+        String receivedMimeType = receivedIntent.getType();
 
-        receivedItent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        receivedIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
         // GPX track send via SEND intent
-        if (receivedAction.equals(Intent.ACTION_SEND) &&
+        if (Intent.ACTION_SEND.equals(receivedAction) &&
             receivedMimeType != null) {
 
             persistTrack();
@@ -360,8 +306,8 @@ public class MainActivity extends AppCompatActivity implements OnRequestPermissi
         Intent shareGpxIntent = getIntent();
 
         // get OSMAnd+ GPX stream URI
-        Uri gpxUri = (Uri) shareGpxIntent.getExtras().get("android.intent.extra.STREAM");
-        String gpxUrl = gpxUri.getPath();
+        Uri gpxUri = (Uri) Objects.requireNonNull(shareGpxIntent.getExtras()).get("android.intent.extra.STREAM");
+        String gpxUrl = Objects.requireNonNull(gpxUri).getPath();
 
         if (gpxUrl != null && !getDbh().hasTrack(gpxUrl)) {
 
@@ -404,19 +350,16 @@ public class MainActivity extends AppCompatActivity implements OnRequestPermissi
 
     protected void handleListItemTap() {
 
-        ListView listV = (ListView) findViewById(R.id.gpxListView);
+        ListView listV = findViewById(R.id.gpxListView);
 
-        listV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        listV.setOnItemClickListener((parent, view, position, id) -> {
 
-                String trackName = (String) parent.getItemAtPosition(position);
-                int trackId = Integer.parseInt(trackName.split(":")[0]);
+            String trackName = (String) parent.getItemAtPosition(position);
+            int trackId = Integer.parseInt(trackName.split(":")[0]);
 
-                Intent myIntent = new Intent(MainActivity.this, LogsActivity.class);
-                myIntent.putExtra("trackId", trackId);
-                MainActivity.this.startActivity(myIntent);
-            }
+            Intent myIntent = new Intent(MainActivity.this, LogsActivity.class);
+            myIntent.putExtra("trackId", trackId);
+            MainActivity.this.startActivity(myIntent);
         });
     }
 
@@ -430,7 +373,7 @@ public class MainActivity extends AppCompatActivity implements OnRequestPermissi
 
             Log.d(TAG, "Menu pos clicked: " + info.position);
 
-            ListView gpxList = (ListView) findViewById(R.id.gpxListView);
+            ListView gpxList = findViewById(R.id.gpxListView);
             String gpxTrackName = (String) gpxList.getAdapter().getItem(info.position);
 
             menu.setHeaderTitle(gpxTrackName);
@@ -449,7 +392,7 @@ public class MainActivity extends AppCompatActivity implements OnRequestPermissi
         int menuItemIndex = item.getItemId();
         String menuItemName = contextMenuItems[menuItemIndex];
 
-        ListView gpxList = (ListView) findViewById(R.id.gpxListView);
+        ListView gpxList = findViewById(R.id.gpxListView);
         String gpxTrackName = (String) gpxList.getAdapter().getItem(info.position);
 
         long gpxTrackId = Long.parseLong(gpxTrackName.split(":")[0]);
